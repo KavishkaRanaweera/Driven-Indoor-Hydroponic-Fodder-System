@@ -1,0 +1,27 @@
+#define WATER_LEVEL_PIN D1 // GPIO pin for water level sensor
+#define RELAY_PIN D2       // GPIO pin for relay module
+
+void setup() {
+  pinMode(WATER_LEVEL_PIN, INPUT); // Water level sensor as input
+  pinMode(RELAY_PIN, OUTPUT);      // Relay as output
+  digitalWrite(RELAY_PIN, LOW);    // Ensure relay is off initially
+  Serial.begin(9600);
+}
+
+void loop() {
+  int waterLevel = digitalRead(WATER_LEVEL_PIN); // Read water level sensor
+  Serial.print("Water Level: ");
+  Serial.println(waterLevel);
+
+  if (waterLevel == HIGH) {
+    // If water level is HIGH (e.g., tank is full), turn off the pump
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println("Pump OFF");
+  } else {
+    // If water level is LOW (e.g., tank is empty), turn on the pump
+    digitalWrite(RELAY_PIN, HIGH);
+    Serial.println("Pump ON");
+  }
+
+  delay(1000); // Delay for readability
+}

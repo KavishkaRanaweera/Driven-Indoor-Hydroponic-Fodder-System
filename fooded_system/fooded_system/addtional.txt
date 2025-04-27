@@ -1,0 +1,24 @@
+useEffect(() => {
+  // Start animation if any device is active
+  const anyDeviceActive = Object.values(devices).some(status => status);
+  
+  if (anyDeviceActive) {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0.6,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  } else {
+    fadeAnim.setValue(1);
+    Animated.timing(fadeAnim).stop();
+  }
+}, [devices]);

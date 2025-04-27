@@ -1,0 +1,36 @@
+#include "DHT.h"
+
+#define DHTPIN A1      // Pin where the DHT11 is connected
+#define DHTTYPE DHT11 // DHT 11
+#define RELAYPIN 3    // Pin where the relay module is connected
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(RELAYPIN, OUTPUT);
+  digitalWrite(RELAYPIN, LOW); // Ensure the relay is off initially
+}
+
+void loop() {
+  delay(2000); // Wait a few seconds between measurements
+  
+  float temp = dht.readTemperature(); // Read temperature as Celsius
+  
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(temp)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+  
+  Serial.print("Temperature: ");
+  Serial.print(temp);
+  Serial.println(" *C");
+  
+  if (temp > 35.0) {
+    digitalWrite(RELAYPIN, HIGH); // Turn the fan on
+  } else {
+    digitalWrite(RELAYPIN, LOW); // Turn the fan off
+  }
+}

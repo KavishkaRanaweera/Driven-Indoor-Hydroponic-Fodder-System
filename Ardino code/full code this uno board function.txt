@@ -1,0 +1,78 @@
+#include "DHT.h"
+
+#define DHTPIN A1         // Pin where the DHT11 is connected
+#define DHTTYPE DHT11     // DHT 11
+#define FAN_RELAYPIN 3    // Pin where the fan relay module is connected
+#define BULB_RELAYPIN 4   // Pin where the bulb relay module is connected
+#define WATER_LEVEL_PIN A2 // Pin where the water level sensor is connected
+#define PUMP_RELAYPIN 5   // Pin where the pump relay module is connected
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+
+  // Initialize relays as outputs
+  pinMode(FAN_RELAYPIN, OUTPUT);
+  pinMode(BULB_RELAYPIN, OUTPUT);
+  pinMode(PUMP_RELAYPIN, OUTPUT);
+
+  // Initialize the water level sensor pin as input
+  pinMode(WATER_LEVEL_PIN, INPUT);
+
+  // Ensure all relays are off initially
+  digitalWrite(FAN_RELAYPIN, LOW);
+  digitalWrite(BULB_RELAYPIN, LOW);
+  digitalWrite(PUMP_RELAYPIN, LOW);
+}
+
+void loop() {
+  delay(2000);  // Wait a few seconds between measurements
+
+  // Read temperature from the DHT sensor
+  float temp = dht.readTemperature();  
+
+  // Check if temperature reading is valid
+  if (isnan(temp)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  // Print temperature to the serial monitor
+  Serial.print("Temperature: ");
+  Serial.print(temp);
+  Serial.println(" *C");
+
+  // Fan control based on temperature
+  if (temp > 35.0) {
+    digitalWrite(FAN_RELAYPIN, HIGH);  // Turn the fan relay on
+    Serial.println("Fan ON");
+  } else {
+    digitalWrite(FAN_RELAYPIN, LOW);  // Turn the fan relay off
+    Serial.println("Fan OFF");
+  }
+
+  // Bulb control based on temperature
+  if (temp < 30.0) {
+    digitalWrite(BULB_RELAYPIN, HIGH);  // Turn the bulb relay on
+    Serial.println("Bulb ON");
+  } else {
+    digitalWrite(BULB_RELAYPIN, LOW);  // Turn the bulb relay off
+    Serial.println("Bulb OFF");
+  }
+
+  // Water level sensor reading
+  int waterLevel = digitalRead(WATER_LEVEL_PIN);
+
+  // Pump control based on water level
+  if (waterLevel == LOW) {
+    // If water level is LOW (e.g., tank is empty), turn the pump ON
+    digitalWrite(PUMP_RELAYPIN, HIGH);
+    Serial.println("Water Pump ON (Refilling)");
+  } else {
+    // If water level is HIGH (e.g., tank is full), turn the pump OFF
+    digitalWrite(PUMP_RELAYPIN, LOW);
+    Serial.println("Water Pump OFF (Tank Full)");
+  }
+}
